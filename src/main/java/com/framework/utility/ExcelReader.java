@@ -1,6 +1,8 @@
 package com.framework.utility;
 
+import com.framework.constants.Constants.DataUtilConstants;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -8,13 +10,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 
-public class ExcelUtil {
+public class ExcelReader {
     private FileInputStream fis;
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
     private XSSFRow row;
     private XSSFCell cell;
-    public ExcelUtil(String filePath){
+    public ExcelReader(String filePath){
         try {
             fis = new FileInputStream(filePath);
         }catch (Exception e){
@@ -78,5 +80,19 @@ public class ExcelUtil {
     }
     private <T> String nullToEmpty(T var) {
         return var == null ? "" : var.toString();
+    }
+    public int getLastRowNumber(String sheetName){
+        int rows = 0;
+        while (!getCellData(sheetName,0,rows).equals("")){
+            rows++;
+        }
+        return rows;
+    }
+    public int getLastColNum(String sheetName, int number){
+        int index = workbook.getSheetIndex(sheetName);
+        if(index == -1)
+            return 0;
+        Sheet sheet = workbook.getSheetAt(index);
+        return sheet.getRow(number).getLastCellNum();
     }
 }

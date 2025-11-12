@@ -7,7 +7,7 @@
     <groupId>groupId</groupId>
     <artifactId>GENERIC-AUTOMATION-TEST-FOR-API-TESTING</artifactId>
     <version>1.0-SNAPSHOT</version>
-<dependencies>
+    <dependencies>
     <!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
     <dependency>
         <groupId>org.hsqldb</groupId>
@@ -21,7 +21,6 @@
         <groupId>org.testng</groupId>
         <artifactId>testng</artifactId>
         <version>7.11.0</version>
-        <scope>test</scope>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
@@ -36,7 +35,6 @@
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured</artifactId>
         <version>5.5.6</version>
-        <scope>test</scope>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
@@ -53,6 +51,24 @@
         <version>5.4.1</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
+    <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>5.5.6</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path -->
+    <dependency>
+        <groupId>com.jayway.jsonpath</groupId>
+        <artifactId>json-path</artifactId>
+        <version>2.9.0</version>
+    </dependency>
+
 </dependencies>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
     
 </project>
