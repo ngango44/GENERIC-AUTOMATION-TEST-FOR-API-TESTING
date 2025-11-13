@@ -11,6 +11,7 @@ import org.apache.http.util.TextUtils;
 import org.testng.Assert;
 import org.testng.SkipException;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import static io.restassured.RestAssured.given;
@@ -20,36 +21,25 @@ public class ApiExecutor {
     RestAssuredConfig config = RestAssured.config()
             .httpClient(HttpClientConfig.httpClientConfig().setParam("CONNECTION_MANAGER_TIMEOUT",300));
 
-    public Response apiGet(LinkedHashMap<String, String> data){
+    public Response apiCallWithType(LinkedHashMap<String, String> data, String method){
         String url = apiExecutorHelper.getUrl(data);
-        Response res = null;
+        Response response = null;
         try{
-            RequestSpecification requestSpecification = given().contentType(ApiExecutorConstants.CONTENT_TYPE.toString())
-                    .body(data.get(Constants.ExcelColumnNameConstant.TEST_INPUT_JSON.toString()));
-            LinkedHashMap<String, String> headers = new LinkedHashMap<>();
-            if (!TextUtils.isEmpty(data.get(Constants.ExcelColumnNameConstant.TEST_HEADERS.toString()))){
-                headers = apiExecutorHelper.setHeaders(data);
-                if ((apiExecutorHelper.hasDynamicPlaceholder(url,headers.toString(),
-                        data.get(Constants.ExcelColumnNameConstant.TEST_INPUT_JSON.toString())))){
-                    throw new SkipException("Skipping this exception");
-                }
-                requestSpecification = requestSpecification.given().headers(headers);
+            RequestSpecification request = given();
+            LinkedHashMap<String, String> headers = apiExecutorHelper.setHeaders(data);
+            String body = data.get(Constants.ExcelColumnNameConstant.TEST_INPUT_JSON.toString());
+            request.headers(headers !=null? headers: new HashMap<>());
+            if (apiExecutorHelper.hasDynamicPlaceholder(url,headers.toString(), body)){
+                throw new SkipException("Skipping this exception");
             }
-            res = requestSpecification.when().get(url).then().extract().response();
+            if(body !=null){
+                request.body(body);
+            }
+            response = request.request(method.toUpperCase(), url);
         }catch (Exception e){
             //APIExecutorHelper.logCurlCommand(extentTest);
             Assert.fail("*******************************apiGet: " + e.getMessage());
         }
-        return res;
-    }
-    public Response apiPost(LinkedHashMap<String, String> data){
-        String url = apiExecutorHelper.getUrl(data);
-        Response res = null;
-        try{
-
-        }catch (Exception e){
-
-        }
-        return res;
+        return response;
     }
 }
