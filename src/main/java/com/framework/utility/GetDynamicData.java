@@ -3,8 +3,6 @@ package com.framework.utility;
 
 import com.framework.constants.Constants.ExcelColumnNameConstant;
 import com.framework.inmemorydatabase.InMemoryDatabaseHelper;
-import com.framework.restassured.APIExecutorHelper;
-import com.framework.restassured.RestAssuredHelper;
 import io.restassured.response.Response;
 import org.apache.http.util.TextUtils;
 
@@ -25,65 +23,64 @@ public class GetDynamicData {
     public void clearCurrentResponse(){
         currentResponse.remove();
     }
-    public void getDynamicValues(LinkedHashMap<String, String> data, String sheetName){
-        getSingleDynamicValue(ExcelColumnNameConstant.TEST_URL.toString(),data);
-        getSingleDynamicValue(ExcelColumnNameConstant.TEST_INPUT_JSON.toString(),data);
-        getSingleDynamicValue(ExcelColumnNameConstant.TEST_HEADERS.toString(),data);
-        getSingleDynamicValue(ExcelColumnNameConstant.TEST_PARAMETERS.toString(),data);
-        getSingleDynamicValue(ExcelColumnNameConstant.TEST_METHOD_AND_JSON_PATH.toString(),data);
-
-        getListDynamicValue(ExcelColumnNameConstant.TEST_URL.toString(),data);
-        getListDynamicValue(ExcelColumnNameConstant.TEST_INPUT_JSON.toString(),data);
-        getListDynamicValue(ExcelColumnNameConstant.TEST_HEADERS.toString(),data);
-        getListDynamicValue(ExcelColumnNameConstant.TEST_PARAMETERS.toString(),data);
-        getListDynamicValue(ExcelColumnNameConstant.TEST_METHOD_AND_JSON_PATH.toString(),data);
+    public void extractDynamicRequestValue(LinkedHashMap<String, String> data){
+        extractDynamicValues(ExcelColumnNameConstant.TEST_URL.toString(),data);
+        extractDynamicValues(ExcelColumnNameConstant.TEST_INPUT_JSON.toString(),data);
+        extractDynamicValues(ExcelColumnNameConstant.TEST_HEADERS.toString(),data);
+        extractDynamicValues(ExcelColumnNameConstant.TEST_PARAMETERS.toString(),data);
+        extractDynamicValues(ExcelColumnNameConstant.TEST_METHOD_AND_JSON_PATH.toString(),data);
     }
-    public void getListDynamicValue(String value, LinkedHashMap<String, String> data){
+    public void extractDynamicResponseValue(LinkedHashMap<String, String> data){
+        extractDynamicValues(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString(),data);
+    }
+    private void extractDynamicValues(String value, LinkedHashMap<String, String> data){
+        String dataValue = data.get(value);
+        if(dataValue != null) {
+            if (dataValue.contains("#")) {
+                extractSingleDynamicValue(value, data);
+            }
+            if (dataValue.contains("@")) {
+                extractListDynamicValue(value, dataValue, data);
+            }
+            if (dataValue.contains("$.")){
+                extractValueFromResponse(value,data);
+            }
+        }
+    }
+    private void extractListDynamicValue(String value, String dataValue, LinkedHashMap<String, String> data){
        try {
-           String dataValue = data.get(value);
-           if (dataValue != null && dataValue.contains("@")) {
-               boolean hasIndex = dataValue.contains("[");
-               String regex = hasIndex ? "\\@[a-zA-Z0-9\\.\\[\\]\\-\\_\\s]+\\@" : "\\@[a-zA-Z0-9\\.\\-\\s]+\\@";
-               Matcher matcher = getMatcherRegex(regex,value,data);
-               while (matcher.find()) {
-                   String dynamicValue = matcher.group();
-                   String cleaned = dynamicValue.replace("@","").replace("["," ").replace("]","");
-                   String[] splitDynamicValue = cleaned.split("\\.");
-                   String sheetName = splitDynamicValue[0].toLowerCase();
-                   String testcaseId = splitDynamicValue[1];
-                   String pathAndIndex = splitDynamicValue[2].toLowerCase();
+           boolean hasIndex = dataValue.contains("[");
+           String regex = hasIndex ? "\\@[a-zA-Z0-9\\.\\[\\]\\-\\_\\s]+\\@" : "\\@[a-zA-Z0-9\\.\\-\\s]+\\@";
+           Matcher matcher = getMatcherRegex(regex,value,data);
+           while (matcher.find()) {
+               String dynamicValue = matcher.group();
+               String cleaned = dynamicValue.replace("@","").replace("["," ").replace("]","");
+               String[] splitDynamicValue = cleaned.split("\\.");
+               String sheetName = splitDynamicValue[0].toLowerCase();
+               String testcaseId = splitDynamicValue[1];
+               String pathAndIndex = splitDynamicValue[2].toLowerCase();
 
-                   String pathValue = null;
-                   int index = 0;
-                   if(pathAndIndex.contains(" ")){
-                       String[] splitPath = pathAndIndex.split(" ");
-                       pathValue = splitPath[0];
-                       index = Integer.parseInt(splitPath[1]);
-                   }else {
-                       pathValue = pathAndIndex;
-                   }
-                   String dataBaseValue = inMemoryDatabaseHelper.getDataFromDataBase(sheetName,testcaseId,pathValue);
-                   if (!TextUtils.isEmpty(dataBaseValue)){
-                       String[] splitDataBaseValue = dataBaseValue.split("\\,");
-                       String extractedValue = splitDataBaseValue[index];
-                       data.put(value, data.get(value).replace(dynamicValue,extractedValue));
-                   }
+               String pathValue = null;
+               int index = 0;
+               if(pathAndIndex.contains(" ")){
+                   String[] splitPath = pathAndIndex.split(" ");
+                   pathValue = splitPath[0];
+                   index = Integer.parseInt(splitPath[1]);
+               }else {
+                   pathValue = pathAndIndex;
+               }
+               String dataBaseValue = inMemoryDatabaseHelper.getDataFromDataBase(sheetName,testcaseId,pathValue);
+               if (!TextUtils.isEmpty(dataBaseValue)){
+                   String[] splitDataBaseValue = dataBaseValue.split("\\,");
+                   String extractedValue = splitDataBaseValue[index];
+                   data.put(value, data.get(value).replace(dynamicValue,extractedValue));
                }
            }
        }catch (Exception e){
            e.printStackTrace();
        }
     }
-    public void getSingleDynamicValue(String value, LinkedHashMap<String, String> data){
-        try{
-            if (data.get(value).contains("#")){
-                extractSingleValue(value, data);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    public void extractSingleValue(String value, LinkedHashMap<String, String> data){
+    private void extractSingleDynamicValue(String value, LinkedHashMap<String, String> data){
         try{
             String regex = "\\#[a-zA-Z0-9\\.\\-\\_\\s]+\\#";
             Matcher matcher = getMatcherRegex(regex,value,data);
@@ -94,46 +91,32 @@ public class GetDynamicData {
                 String databaseValue = getBaseValue(splitDynamicValue);
                 data.put(value, data.get(value).replace(dynamicValue, databaseValue));
             }
-        } catch (Exception e){
+        }catch (Exception e){
             e.printStackTrace();
         }
     }
-    public void extractListValue(String value, LinkedHashMap<String, String> data){
+    private void extractValueFromResponse(String value, LinkedHashMap<String, String> data){
         try {
-            String regex = "\\@[a-zA-Z0-9\\.\\-\\s]+\\@";
+            String regex = "\\$\\.[a-zA-Z0-9\\[\\]\\.\\-\\_]+";
             Matcher matcher = getMatcherRegex(regex, value, data);
             while (matcher.find()) {
-                String dynamicValue = matcher.group();
-                String replaceValueFromDynamicValue = dynamicValue.replace("@", "");
-                String[] splitDynamicValue = replaceValueFromDynamicValue.split("\\.");
-                String databaseValue = getBaseValue(splitDynamicValue);
-                if (!TextUtils.isEmpty(databaseValue)){
-                    String[] splitDataBaseValue = databaseValue.split("\\,");
-                    String firstValue = splitDataBaseValue[0];
-                    data.put(value, data.get(value).replace(dynamicValue, firstValue));
+                String jsonPath = matcher.group();
+                String resValue = getValueFromCurrentResponse(jsonPath);
+                if (resValue != null){
+                    data.put(value, data.get(value).replace(jsonPath,resValue));
                 }
             }
         } catch (Exception e){
             e.printStackTrace();
         }
     }
-//    public void extractListValue(String value, LinkedHashMap<String, String> data){
-//        try {
-//            String regex = "\\@[a-zA-Z0-9\\.\\-\\s]+\\@";
-//            Matcher matcher = getMatcherRegex(regex, value, data);
-//            while (matcher.find()) {
-//                String dynamicValue = matcher.group();
-//                String databaseValue = getBaseValue(dynamicValue);
-//                if (!TextUtils.isEmpty(databaseValue)){
-//                    String[] splitDataBaseValue = databaseValue.split("\\,");
-//                    String firstValue = splitDataBaseValue[0];
-//                    data.put(value, data.get(value).replace(dynamicValue, firstValue));
-//                }
-//            }
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
-//    }
+    private String getValueFromCurrentResponse (String jsonPath){
+        Response response = getCurrentResponse();
+        if (response != null){
+            return response.jsonPath().getString(jsonPath);
+        }
+        return null;
+    }
     private Matcher getMatcherRegex(String regex, String value, LinkedHashMap<String, String> data){
         Pattern pattern = Pattern.compile(regex);
         return pattern.matcher(data.get(value));

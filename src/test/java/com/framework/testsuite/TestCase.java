@@ -5,6 +5,7 @@ import com.framework.constants.Constants.ExcelColumnNameConstant;
 import com.framework.restassured.RestAssuredHelper;
 import com.framework.utility.DataUtil;
 import com.framework.utility.GetDynamicData;
+import com.framework.utility.ValidationHelper;
 import io.restassured.response.Response;
 import org.apache.http.util.TextUtils;
 import org.testng.annotations.Test;
@@ -15,6 +16,7 @@ public class TestCase {
     private final TestContext context;
     private final GetDynamicData getDynamicData = new GetDynamicData();
     private final RestAssuredHelper restAssuredHelper = new RestAssuredHelper();
+    private ValidationHelper validationHelper = new ValidationHelper();
 
     public TestCase(TestContext context){
         this.context = context;
@@ -28,10 +30,12 @@ public class TestCase {
                 String testCaseName = data.get(ExcelColumnNameConstant.TESTCASE_NAME.toString());
                 String testName = testId + " - " +testCaseName;
             }
-            getDynamicData.getDynamicValues(data, sheetName);
-            Response response = restAssuredHelper.apiExecutorHelper(data,sheetName);
+            getDynamicData.extractDynamicRequestValue(data);
+            restAssuredHelper.apiExecutorHelper(data,sheetName);
+            getDynamicData.extractDynamicResponseValue(data);
+            validationHelper.validateResults(data);
         }catch (AssertionError e){
-
+            e.printStackTrace();
         }
     }
 }
