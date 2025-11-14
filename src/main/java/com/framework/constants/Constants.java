@@ -55,4 +55,8 @@ public class Constants {
         public static final String DELETE = "delete";
         public static final String PATCH = "patch";
     }
+    public static class RestUtilConstant {
+        public static final StringBuffer REST_UTIL_CLASSNAME = new StringBuffer(
+                "com.framework.utility.GetJsonValuesFromResponse");
+    }
 }

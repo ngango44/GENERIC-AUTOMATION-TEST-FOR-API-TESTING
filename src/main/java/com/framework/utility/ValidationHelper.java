@@ -1,16 +1,18 @@
 package com.framework.utility;
 
 import com.framework.constants.Constants.ExcelColumnNameConstant;
-import com.framework.restassured.RestAssuredHelper;
 import io.restassured.response.Response;
+import org.apache.http.util.TextUtils;
 import org.testng.Assert;
-import org.testng.asserts.Assertion;
 
 import java.util.LinkedHashMap;
+import java.util.List;
+
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ValidationHelper {
-    GetDynamicData getDynamicData = new GetDynamicData();
-    Response response = getDynamicData.getCurrentResponse();
+    ExtractDynamicData extractDynamicData = new ExtractDynamicData();
     /**
      *
      * @param rawValue the raw string value from Excel
@@ -31,22 +33,35 @@ public class ValidationHelper {
         return results;
     }
 
-    private void verifyStatusCode(LinkedHashMap<String, String> data){
+    private void verifyStatusCode(Response response,LinkedHashMap<String, String> data){
         int actual = response.getStatusCode();
         int expected = Integer.parseInt(data.get(ExcelColumnNameConstant.TEST_EXPECTED_STATUS_CODE.toString()));
         Assert.assertEquals(actual,expected);
     }
-    public void validateResults(LinkedHashMap<String, String> data){
+    public void validateResults(Response response,LinkedHashMap<String, String> data){
         //status code
-        verifyStatusCode(data);
+        verifyStatusCode(response,data);
 
+        //verify schema
+        verifySchemas(response,data);
         //Verify Test expected colum
         String[][] expectedResults = splitMultipleEntriesAndValidate(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString()
                 ,";",",",data);
         for(String[] result : expectedResults){
             Assert.assertEquals(result[0],result[1]);
         }
-        //remove current response
-        getDynamicData.clearCurrentResponse();
+    }
+    private void verifySchemas(Response response, LinkedHashMap<String, String> data){
+        if (response == null){
+            return;
+        }
+        if (!TextUtils.isEmpty(data.get(ExcelColumnNameConstant.TEST_SCHEMA_NAME.toString()))){
+            String schemaName = data.get(ExcelColumnNameConstant.TEST_SCHEMA_NAME.toString());
+            try{
+                assertThat(response.asString(),matchesJsonSchemaInClasspath("schemas/" + schemaName));
+            }catch (AssertionError e){
+                e.printStackTrace();
+            }
+        }
     }
 }

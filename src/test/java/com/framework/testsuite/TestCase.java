@@ -4,7 +4,8 @@ import com.framework.config.TestContext;
 import com.framework.constants.Constants.ExcelColumnNameConstant;
 import com.framework.restassured.RestAssuredHelper;
 import com.framework.utility.DataUtil;
-import com.framework.utility.GetDynamicData;
+import com.framework.utility.ExtractDynamicData;
+import com.framework.utility.ResponseValueExtractor;
 import com.framework.utility.ValidationHelper;
 import io.restassured.response.Response;
 import org.apache.http.util.TextUtils;
@@ -14,7 +15,8 @@ import java.util.LinkedHashMap;
 
 public class TestCase {
     private final TestContext context;
-    private final GetDynamicData getDynamicData = new GetDynamicData();
+    private final ExtractDynamicData extractDynamicData = new ExtractDynamicData();
+    private final ResponseValueExtractor responseValueExtractor = new ResponseValueExtractor();
     private final RestAssuredHelper restAssuredHelper = new RestAssuredHelper();
     private ValidationHelper validationHelper = new ValidationHelper();
 
@@ -30,10 +32,16 @@ public class TestCase {
                 String testCaseName = data.get(ExcelColumnNameConstant.TESTCASE_NAME.toString());
                 String testName = testId + " - " +testCaseName;
             }
-            getDynamicData.extractDynamicRequestValue(data);
-            restAssuredHelper.apiExecutorHelper(data,sheetName);
-            getDynamicData.extractDynamicResponseValue(data);
-            validationHelper.validateResults(data);
+            //Extract dynamic request data
+            extractDynamicData.extractDynamicRequestValue(data);
+            //Execute api call
+            Response response = restAssuredHelper.apiExecutorHelper(data,sheetName);
+            //Extract value and store in db
+            responseValueExtractor.extractAndStoreResponseValues(response,data,sheetName);
+            // Extract dynamic response data
+            responseValueExtractor.extractDynamicResponseValue(response,data);
+            // verify (status code, schema, assertions)
+            validationHelper.validateResults(response,data);
         }catch (AssertionError e){
             e.printStackTrace();
         }

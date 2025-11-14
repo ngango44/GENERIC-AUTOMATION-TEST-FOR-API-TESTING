@@ -11,27 +11,14 @@ import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GetDynamicData {
+public class ExtractDynamicData {
     InMemoryDatabaseHelper inMemoryDatabaseHelper = new InMemoryDatabaseHelper();
-    private static ThreadLocal<Response> currentResponse = new ThreadLocal<Response>();
-    public void setCurrentResponse(Response response){
-        currentResponse.set(response);
-    }
-    public Response getCurrentResponse(){
-        return currentResponse.get();
-    }
-    public void clearCurrentResponse(){
-        currentResponse.remove();
-    }
     public void extractDynamicRequestValue(LinkedHashMap<String, String> data){
         extractDynamicValues(ExcelColumnNameConstant.TEST_URL.toString(),data);
         extractDynamicValues(ExcelColumnNameConstant.TEST_INPUT_JSON.toString(),data);
         extractDynamicValues(ExcelColumnNameConstant.TEST_HEADERS.toString(),data);
         extractDynamicValues(ExcelColumnNameConstant.TEST_PARAMETERS.toString(),data);
         extractDynamicValues(ExcelColumnNameConstant.TEST_METHOD_AND_JSON_PATH.toString(),data);
-    }
-    public void extractDynamicResponseValue(LinkedHashMap<String, String> data){
-        extractDynamicValues(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString(),data);
     }
     private void extractDynamicValues(String value, LinkedHashMap<String, String> data){
         String dataValue = data.get(value);
@@ -41,9 +28,6 @@ public class GetDynamicData {
             }
             if (dataValue.contains("@")) {
                 extractListDynamicValue(value, dataValue, data);
-            }
-            if (dataValue.contains("$.")){
-                extractValueFromResponse(value,data);
             }
         }
     }
@@ -95,29 +79,7 @@ public class GetDynamicData {
             e.printStackTrace();
         }
     }
-    private void extractValueFromResponse(String value, LinkedHashMap<String, String> data){
-        try {
-            String regex = "\\$\\.[a-zA-Z0-9\\[\\]\\.\\-\\_]+";
-            Matcher matcher = getMatcherRegex(regex, value, data);
-            while (matcher.find()) {
-                String jsonPath = matcher.group();
-                String resValue = getValueFromCurrentResponse(jsonPath);
-                if (resValue != null){
-                    data.put(value, data.get(value).replace(jsonPath,resValue));
-                }
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    private String getValueFromCurrentResponse (String jsonPath){
-        Response response = getCurrentResponse();
-        if (response != null){
-            return response.jsonPath().getString(jsonPath);
-        }
-        return null;
-    }
-    private Matcher getMatcherRegex(String regex, String value, LinkedHashMap<String, String> data){
+    protected Matcher getMatcherRegex(String regex, String value, LinkedHashMap<String, String> data){
         Pattern pattern = Pattern.compile(regex);
         return pattern.matcher(data.get(value));
     }

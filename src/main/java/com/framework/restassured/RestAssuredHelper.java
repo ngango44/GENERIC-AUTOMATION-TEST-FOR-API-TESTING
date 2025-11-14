@@ -1,17 +1,14 @@
 package com.framework.restassured;
 
-import com.framework.constants.Constants;
 import com.framework.constants.Constants.RestAssuredHelperConstant;
 import com.framework.constants.Constants.ExcelColumnNameConstant;
-import com.framework.utility.GetDynamicData;
 import io.restassured.response.Response;
 
 import java.util.LinkedHashMap;
 
 public class RestAssuredHelper {
     ApiExecutor apiExecutor = new ApiExecutor();
-    GetDynamicData getDynamicData = new GetDynamicData();
-    public void apiExecutorHelper(LinkedHashMap<String, String> data, String sheetName){
+    public Response apiExecutorHelper(LinkedHashMap<String, String> data, String sheetName){
         Response response = null;
         String apiType = data.get(ExcelColumnNameConstant.TEST_API_TYPE.toString());
         switch (apiType.toLowerCase()){
@@ -33,8 +30,6 @@ public class RestAssuredHelper {
             default:
                 throw new RuntimeException("No Case Matched For API Type: " + apiType);
         }
-        if (response !=null){
-            getDynamicData.setCurrentResponse(response);
-        }
+       return response;
     }
 }

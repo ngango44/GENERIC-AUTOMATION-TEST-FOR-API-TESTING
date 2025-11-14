@@ -52,4 +52,12 @@ public class InMemoryDatabaseHelper {
         }
         return resultFromTable.getString(InMemoryDatabaseHelperConstant.RESPONSEVALUE.toString());
     }
+    public void createData(String testcaseName, String sheetName,String path, String responseValue, String tableName){
+        try {
+            statement = connectionObj.createStatement();
+            result = statement.executeUpdate("INSERT INTO " + tableName + " VALUES ('" + testcaseName + "','" + sheetName + "','" + path + "','" + responseValue + "')");
+        }catch (Exception e){
+
+        }
+    }
 }
