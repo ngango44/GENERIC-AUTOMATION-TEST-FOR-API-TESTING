@@ -16,11 +16,10 @@ public class DataUtil {
         Object[][] data = null;
         try {
             TestContext context = null;
-            Object testInstance = testContext.getAttribute("testInstance");
             for (ITestNGMethod testNGMethod: testContext.getAllTestMethods()) {
                 Object instance = testNGMethod.getInstance();
                 if (instance instanceof TestContextProvider) {
-                    context = ((TestContextProvider) testInstance).getContext();
+                    context = ((TestContextProvider) instance).getContext();
                     break;
                 }
             }

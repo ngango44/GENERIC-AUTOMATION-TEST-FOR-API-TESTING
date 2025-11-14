@@ -41,14 +41,23 @@ public class ExcelReader {
             cellVal = nullToEmpty(row);
             cell = row.getCell(col_Num);
             cellVal = nullToEmpty(cell);
-            if (cell.getCellType() == CellType.STRING)
+            if (cell.getCellType() == CellType.STRING) {
                 cellVal = cell.getStringCellValue();
-            else if (cell.getCellType() == CellType.NUMERIC || cell.getCellType() == CellType.FORMULA) {
+            } else if (cell.getCellType() == CellType.NUMERIC) {
+                // Convert numeric to string, removing decimal if it's a whole number
+                double numValue = cell.getNumericCellValue();
+                if (numValue == (long) numValue) {
+                    cellVal = String.valueOf((long) numValue);
+                } else {
+                    cellVal = String.valueOf(numValue);
+                }
+            } else if (cell.getCellType() == CellType.FORMULA) {
                 cellVal = cell.getStringCellValue().trim();
             } else if (cell.getCellType() == CellType.BLANK) {
                 cellVal = "";
-            }else
+            } else {
                 cellVal = String.valueOf(cell.getBooleanCellValue());
+            }
             return cellVal;
         }catch (Exception e){
             e.printStackTrace();
@@ -59,35 +68,52 @@ public class ExcelReader {
         try {
             String cellVal = "";
             sheet = workbook.getSheet(sheetName);
-            cellVal = nullToEmpty(sheet);
+            if (sheet == null) {
+                return "";
+            }
 
             row = sheet.getRow(rowNum -1);
-            cellVal = nullToEmpty(row);
+            if (row == null) {
+                return "";
+            }
+
             cell = row.getCell(colNum);
-            cellVal = nullToEmpty(cell);
-            if (cell.getCellType() == CellType.STRING)
+            if (cell == null) {
+                return "";
+            }
+
+            if (cell.getCellType() == CellType.STRING) {
                 cellVal = cell.getStringCellValue();
-            else if (cell.getCellType() == CellType.NUMERIC || cell.getCellType() == CellType.FORMULA) {
+            } else if (cell.getCellType() == CellType.NUMERIC) {
+                // Convert numeric to string, removing decimal if it's a whole number
+                double numValue = cell.getNumericCellValue();
+                if (numValue == (long) numValue) {
+                    cellVal = String.valueOf((long) numValue);
+                } else {
+                    cellVal = String.valueOf(numValue);
+                }
+            } else if (cell.getCellType() == CellType.FORMULA) {
                 cellVal = cell.getStringCellValue().trim();
             } else if (cell.getCellType() == CellType.BLANK) {
                 cellVal = "";
-            }else
+            } else {
                 cellVal = String.valueOf(cell.getBooleanCellValue());
+            }
             return cellVal;
         }catch (Exception e){
             e.printStackTrace();
-            return "row " + rowNum + "or colum " + colNum + "does not exist in sheet " + sheetName;
+            return "";
         }
     }
     private <T> String nullToEmpty(T var) {
         return var == null ? "" : var.toString();
     }
     public int getLastRowNumber(String sheetName){
-        int rows = 0;
+        int rows = 1; // Start from 1 since getCellData expects rowNum >= 1
         while (!getCellData(sheetName,0,rows).equals("")){
             rows++;
         }
-        return rows;
+        return rows - 1; // Return the actual last row with data
     }
     public int getLastColNum(String sheetName, int number){
         int index = workbook.getSheetIndex(sheetName);

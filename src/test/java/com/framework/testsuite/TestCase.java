@@ -1,6 +1,7 @@
 package com.framework.testsuite;
 
 import com.framework.config.TestContext;
+import com.framework.config.TestContextProvider;
 import com.framework.constants.Constants.ExcelColumnNameConstant;
 import com.framework.restassured.RestAssuredHelper;
 import com.framework.utility.DataUtil;
@@ -17,7 +18,7 @@ import org.testng.annotations.Test;
 
 import java.util.LinkedHashMap;
 
-public class TestCase {
+public class TestCase implements TestContextProvider {
     private final TestContext context;
     private final ExtractDynamicData extractDynamicData = new ExtractDynamicData();
     private final ResponseValueExtractor responseValueExtractor = new ResponseValueExtractor();
@@ -26,6 +27,11 @@ public class TestCase {
 
     public TestCase(TestContext context){
         this.context = context;
+    }
+
+    @Override
+    public TestContext getContext() {
+        return context;
     }
     @Test(priority = 1, dataProvider = "getData", dataProviderClass = DataUtil.class)
     @Description("API Test Execution")
