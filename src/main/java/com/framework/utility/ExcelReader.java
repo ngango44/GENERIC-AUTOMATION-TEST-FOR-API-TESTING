@@ -19,6 +19,7 @@ public class ExcelReader {
     public ExcelReader(String filePath){
         try {
             fis = new FileInputStream(filePath);
+            workbook = new XSSFWorkbook(fis);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -94,5 +95,9 @@ public class ExcelReader {
             return 0;
         Sheet sheet = workbook.getSheetAt(index);
         return sheet.getRow(number).getLastCellNum();
+    }
+
+    public XSSFWorkbook getWorkbook() {
+        return workbook;
     }
 }

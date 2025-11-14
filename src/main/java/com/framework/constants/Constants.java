@@ -25,6 +25,10 @@ public class Constants {
         public static final StringBuffer TEST_METHOD_AND_JSON_PATH = new StringBuffer("test method and json path");
         public static final StringBuffer TEST_ASSERT_RESPONSE = new StringBuffer("test assert response");
     }
+
+    public static class FactoryHelperConstants {
+        public static final StringBuffer SHEET_NAME = new StringBuffer("TestSuite");
+    }
     public static class InMemoryDatabaseHelperConstant {
         public static final StringBuffer HSQLDBJDBCDRIVER = new StringBuffer("org.hsqldb.jdbc.JDBCDriver");
         public static final StringBuffer CREATINGCONNECTIONFORHSQLDB = new StringBuffer("jdbc:hsqldb:mem:.");

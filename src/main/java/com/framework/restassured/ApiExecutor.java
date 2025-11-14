@@ -1,7 +1,7 @@
 package com.framework.restassured;
 
 import com.framework.constants.Constants;
-import com.framework.constants.Constants.ApiExecutorConstants;
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -25,7 +25,8 @@ public class ApiExecutor {
         String url = apiExecutorHelper.getUrl(data);
         Response response = null;
         try{
-            RequestSpecification request = given();
+            RequestSpecification request = given()
+                    .filter(new AllureRestAssured()); // Add Allure filter to log request/response
             LinkedHashMap<String, String> headers = apiExecutorHelper.setHeaders(data);
             String body = data.get(Constants.ExcelColumnNameConstant.TEST_INPUT_JSON.toString());
             request.headers(headers !=null? headers: new HashMap<>());
