@@ -28,11 +28,15 @@ public class APIExecutorHelper {
      */
     public LinkedHashMap<String, String> setHeaders(LinkedHashMap<String, String> data){
         LinkedHashMap<String, String> headerMap = new LinkedHashMap<>();
-        String headerString = data.get(ExcelColumnNameConstant.TEST_HEADERS.toString());
+        String headerString = ExcelColumnNameConstant.TEST_HEADERS.toString();
+        if(data.get(headerString).equals(""))
+            data.put(headerString,"Content-Type:application/json");
 
         String[][] headers = validationHelper.splitMultipleEntriesAndValidate(headerString,";",":",data);
         for (String[] header: headers){
-            headerMap.put(header[0],header[1]);
+            if (header.length >= 2) {
+                headerMap.put(header[0].trim(),header[1].trim());
+            }
         }
         return headerMap;
     }

@@ -61,9 +61,12 @@ public class ResponseValueExtractor{
             String methodAndJsonPathString = data.get(columName);
             String[][] entries = validationHelper.splitMultipleEntriesAndValidate(methodAndJsonPathString,";",":",data);
             for (String[] entry: entries){
-                String method = entry[0];
-                String jsonPath = entry[1];
-                methodAnhJsonPathMap.put(method,jsonPath);
+                // Skip empty entries
+                if (entry.length >= 2) {
+                    String method = entry[0];
+                    String jsonPath = entry[1];
+                    methodAnhJsonPathMap.put(method,jsonPath);
+                }
             }
         }catch (IllegalArgumentException e){
             System.out.println("Illegal format");

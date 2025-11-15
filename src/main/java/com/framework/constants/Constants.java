@@ -39,14 +39,12 @@ public class Constants {
         public static final StringBuffer RESPONSEVALUE = new StringBuffer("responsevalue");
     }
     public static class OperatorAssertions{
-        public static final StringBuffer CONTAINS = new StringBuffer("contains");
-        public static final StringBuffer EQUALS = new StringBuffer("equals");
-        public static final StringBuffer GREATER_THAN = new StringBuffer(">");
-        public static final StringBuffer LESS_THAN = new StringBuffer("<");
-        public static final StringBuffer GREATER_THAN_EQUAL = new StringBuffer(">=");
-        public static final StringBuffer LESS_THAN_EQUAL = new StringBuffer("<=");
-        public static final StringBuffer REGEX = new StringBuffer("regex");
-
+        public static final StringBuffer CONTAINS = new StringBuffer("verifyContains");
+        public static final StringBuffer EQUALS = new StringBuffer("verifyEquals");
+        public static final StringBuffer GREATER_THAN = new StringBuffer("verifyGreaterThan");
+        public static final StringBuffer LESS_THAN = new StringBuffer("verifyLessThan");
+        public static final StringBuffer GREATER_THAN_EQUAL = new StringBuffer("verifyGreaterThanOrEqual");
+        public static final StringBuffer LESS_THAN_EQUAL = new StringBuffer("verifyLessThanOrEqual");
     }
     public static class ApiExecutorConstants {
         public static final StringBuffer CONTENT_TYPE = new StringBuffer("application/json");

@@ -26,7 +26,7 @@ public class ApiExecutor {
         Response response = null;
         try{
             RequestSpecification request = given()
-                    .filter(new AllureRestAssured()); // Add Allure filter to log request/response
+                    .filter(new AllureRestAssured());
             LinkedHashMap<String, String> headers = apiExecutorHelper.setHeaders(data);
             String body = data.get(Constants.ExcelColumnNameConstant.TEST_INPUT_JSON.toString());
             request.headers(headers !=null? headers: new HashMap<>());
@@ -38,8 +38,8 @@ public class ApiExecutor {
             }
             response = request.request(method.toUpperCase(), url);
         }catch (Exception e){
-            //APIExecutorHelper.logCurlCommand(extentTest);
             Assert.fail("*******************************apiGet: " + e.getMessage());
+            e.printStackTrace();
         }
         return response;
     }
