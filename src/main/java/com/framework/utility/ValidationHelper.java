@@ -23,12 +23,27 @@ public class ValidationHelper {
      */
     public String[][] splitMultipleEntriesAndValidate(String rawValue, String entryDelimiter,
                                                       String keyValueDelimiter, LinkedHashMap<String, String> data){
+        // Return empty array if rawValue is null or empty
+        if (rawValue == null || rawValue.trim().isEmpty()) {
+            return new String[0][0];
+        }
+
         String[] entries = rawValue.split(entryDelimiter);
         String[][] results = new String[entries.length][];
         for (int i = 0; i< entries.length; i++){
             String entry = entries[i].trim();
+            // Skip empty entries
+            if (entry.isEmpty()) {
+                results[i] = new String[0];
+                continue;
+            }
             String[] parts = entry.split(keyValueDelimiter,2);
-            results[i] = new String[]{ parts[0].trim(),parts[1].trim()};
+            // Ensure we have both key and value
+            if (parts.length >= 2) {
+                results[i] = new String[]{parts[0].trim(), parts[1].trim()};
+            } else {
+                results[i] = new String[0]; // Skip malformed entries
+            }
         }
         return results;
     }

@@ -69,41 +69,25 @@ public class FactoryHelper {
         try{
             ExcelReader excelread = new ExcelReader(excelFilePath);
 
-            // Debug: Print all sheet names in the Excel file
-            System.out.println("=== DEBUG: Excel file: " + excelFilePath);
-            System.out.println("=== DEBUG: Available sheets in Excel:");
             int totalSheets = excelread.getWorkbook().getNumberOfSheets();
-            for (int i = 0; i < totalSheets; i++) {
-                System.out.println("  - Sheet " + i + ": " + excelread.getWorkbook().getSheetAt(i).getSheetName());
-            }
-
             String sheetName = FactoryHelperConstants.SHEET_NAME.toString();
-            System.out.println("=== DEBUG: Looking for sheet: '" + sheetName + "'");
 
             // Check if sheet exists
             if (excelread.getWorkbook().getSheet(sheetName) == null) {
-                System.err.println("ERROR: Sheet '" + sheetName + "' not found in Excel file!");
-                System.err.println("Please create a sheet named '" + sheetName + "' with columns: [Sheet Name | Runmode]");
                 return sheets;
             }
 
             int rows = excelread.getLastRowNumber(sheetName);
-            System.out.println("=== DEBUG: Total rows in '" + sheetName + "': " + rows);
 
             for (int i = 1; i <= rows; i++) {
                 String runmode = excelread.getCellData(sheetName, 1, i);
                 String targetSheetName = excelread.getCellData(sheetName, 0, i);
-                System.out.println("  Row " + i + ": Sheet='" + targetSheetName + "', Runmode='" + runmode + "'");
 
                 if (runmode.equalsIgnoreCase(Constants.DataUtilConstants.RUNMODE.toString())) {
-                    System.out.println("    -> Adding sheet '" + targetSheetName + "' to run list");
                     sheets.add(new SheetInfo(targetSheetName, excelFilePath));
                 }
             }
-
-            System.out.println("=== DEBUG: Total runnable sheets found: " + sheets.size());
         }catch (Exception e){
-            System.err.println("ERROR in getRunnableSheets:");
             e.printStackTrace();
         }
         return sheets;

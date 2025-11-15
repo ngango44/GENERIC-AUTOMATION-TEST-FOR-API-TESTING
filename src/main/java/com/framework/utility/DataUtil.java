@@ -41,7 +41,7 @@ public class DataUtil {
                 if(excelReader.getCellData(sheetName,1,i).toLowerCase().trim()
                         .equalsIgnoreCase(DataUtilConstants.RUNMODE.toString())){
                     table = getTestCaseMap(excelReader,sheetName,i,cols,table);
-                    table.put("baseUrl",excelReader.getCellData(sheetName, 1, 0));
+                    table.put("baseUrl",excelReader.getCellData(sheetName, 1, 1)); // ← SỬA: row 1 thay vì row 0
                     data[value][0] = table;
                     value++;
                     while (excelReader.getCellData(sheetName,1,i+1).toLowerCase().trim().equals("")){
@@ -71,7 +71,13 @@ public class DataUtil {
     public LinkedHashMap<String, String> getTestCaseMap(ExcelReader excelReader, String sheetName, int row, int cols, LinkedHashMap<String, String> table){
         try{
             for (int j = 0; j < cols; j++){
-                StringBuffer key = new StringBuffer(excelReader.getCellData(sheetName,j,1).toLowerCase().trim());
+                String headerValue = excelReader.getCellData(sheetName,j,2);
+            }
+            for (int j = 0; j < cols; j++){
+                String headerValue = excelReader.getCellData(sheetName,j,1);
+            }
+            for (int j = 0; j < cols; j++){
+                StringBuffer key = new StringBuffer(excelReader.getCellData(sheetName,j,2).toLowerCase().trim()); // ← SỬA: row 2 thay vì row 1
                 StringBuffer value = new StringBuffer(excelReader.getCellData(sheetName,j,row).trim());
                 table.put(key.toString().trim(), value.toString().trim());
             }
