@@ -1,5 +1,6 @@
 package com.framework.utility;
 
+import com.framework.constants.Constants;
 import com.framework.constants.Constants.OperatorAssertions;
 import com.framework.constants.Constants.ExcelColumnNameConstant;
 import io.restassured.response.Response;
@@ -78,12 +79,12 @@ public class ValidationHelper {
     private void verifyResponseExpected(LinkedHashMap<String, String> data){
         try {
             if (!TextUtils.isEmpty(data.get(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString()))) {
-                //doạn này sao ta
                 String[][] expectedResults = splitMultipleEntriesAndValidate(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString()
                         , ";", ",", data);
                 Field[] fields = OperatorAssertions.class.getDeclaredFields();
                 List<String> assertStrings = getAllKeyConstant(fields);
                 for (String[] result : expectedResults) {
+                    System.out.println(result);
                     if (result.length >= 2) {
                         if (assertStrings.contains(result[0])) {
                             String[] assertList = result[0].split(":");
@@ -92,12 +93,16 @@ public class ValidationHelper {
                         }
                         else
                             verifyEquals(result[0].trim(),result[1].trim());
-                    }
+                    }else
+                        verifyFail(Constants.ErrorMessageConstant.INVALID_EXPECTED_ERROR);
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+    private void verifyFail(String message){
+        Assert.assertFalse(true,message);
     }
     private void verifyEquals(String actual, String expected) {
         Assert.assertEquals(actual, expected);

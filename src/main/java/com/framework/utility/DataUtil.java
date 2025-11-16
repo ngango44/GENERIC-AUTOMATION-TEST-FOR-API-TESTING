@@ -1,32 +1,21 @@
 package com.framework.utility;
 
-import com.framework.config.TestContext;
-import com.framework.config.TestContextProvider;
 import com.framework.constants.Constants.DataUtilConstants;
-import org.testng.ITestContext;
-import org.testng.ITestNGMethod;
-import org.testng.annotations.DataProvider;
 
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
 public class DataUtil {
-    @DataProvider(name = "getData")
-    public Object[][] getData(ITestContext testContext, Method method){
+    /**
+     * Instance-level data provider that takes TestContext directly
+     */
+    public Object[][] getDataForContext(com.framework.config.TestContext context){
         Object[][] data = null;
         try {
-            TestContext context = null;
-            for (ITestNGMethod testNGMethod: testContext.getAllTestMethods()) {
-                Object instance = testNGMethod.getInstance();
-                if (instance instanceof TestContextProvider) {
-                    context = ((TestContextProvider) instance).getContext();
-                    break;
-                }
-            }
             if(context == null){
-                System.err.println("ERROR: Could not get TestContext from test instance!");
+                System.err.println("ERROR: TestContext is null!");
                 return new Object[0][0];
             }
+
             String excelFilePath = context.getExcelFilePath();
             String sheetName = context.getSheetName();
             ExcelReader excelReader = new ExcelReader(excelFilePath);
@@ -41,7 +30,7 @@ public class DataUtil {
                 if(excelReader.getCellData(sheetName,1,i).toLowerCase().trim()
                         .equalsIgnoreCase(DataUtilConstants.RUNMODE.toString())){
                     table = getTestCaseMap(excelReader,sheetName,i,cols,table);
-                    table.put("baseUrl",excelReader.getCellData(sheetName, 1, 1)); // ← SỬA: row 1 thay vì row 0
+                    table.put("baseUrl",excelReader.getCellData(sheetName, 1, 1));
                     data[value][0] = table;
                     value++;
                     while (excelReader.getCellData(sheetName,1,i+1).toLowerCase().trim().equals("")){

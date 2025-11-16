@@ -61,4 +61,8 @@ public class Constants {
         public static final StringBuffer REST_UTIL_CLASSNAME = new StringBuffer(
                 "com.framework.utility.GetJsonValuesFromResponse");
     }
+
+    public static class ErrorMessageConstant{
+        public static final String INVALID_EXPECTED_ERROR = "Invalid Format: [method:]actual,expected ";
+    }
 }
