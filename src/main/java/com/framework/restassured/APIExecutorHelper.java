@@ -32,7 +32,7 @@ public class APIExecutorHelper {
         if(data.get(headerString).equals(""))
             data.put(headerString,"Content-Type:application/json");
 
-        String[][] headers = validationHelper.splitMultipleEntriesAndValidate(headerString,";",":",data);
+        String[][] headers = validationHelper.splitMultipleEntriesAndValidate(data.get(headerString),";",":");
         for (String[] header: headers){
             if (header.length >= 2) {
                 headerMap.put(header[0].trim(),header[1].trim());

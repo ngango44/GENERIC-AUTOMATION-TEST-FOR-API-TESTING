@@ -23,16 +23,15 @@ public class ValidationHelper {
      * @param rawValue the raw string value from Excel
      * @param entryDelimiter The delimiter between entries (usually ";")
      * @param keyValueDelimiter The delimiter within each entry (usually ":")
-     * @param data Test case data for context
      * @return Array of entries
      */
     public String[][] splitMultipleEntriesAndValidate(String rawValue, String entryDelimiter,
-                                                      String keyValueDelimiter, LinkedHashMap<String, String> data){
+                                                      String keyValueDelimiter){
         if (rawValue == null || rawValue.trim().isEmpty()) {
             return new String[0][0];
         }
 
-        String[] entries = data.get(rawValue).split(entryDelimiter);
+        String[] entries = rawValue.split(entryDelimiter);
         String[][] results = new String[entries.length][];
         for (int i = 0; i< entries.length; i++){
             String entry = entries[i].trim();
@@ -79,8 +78,8 @@ public class ValidationHelper {
     private void verifyResponseExpected(LinkedHashMap<String, String> data){
         try {
             if (!TextUtils.isEmpty(data.get(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString()))) {
-                String[][] expectedResults = splitMultipleEntriesAndValidate(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString()
-                        , ";", ",", data);
+                String[][] expectedResults = splitMultipleEntriesAndValidate(data.get(ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString())
+                        , ";", ",");
                 Field[] fields = OperatorAssertions.class.getDeclaredFields();
                 List<String> assertStrings = getAllKeyConstant(fields);
                 for (String[] result : expectedResults) {

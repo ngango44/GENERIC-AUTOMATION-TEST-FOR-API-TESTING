@@ -12,11 +12,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public class GetJsonValuesFromResponse {
-    InMemoryDatabaseHelper inMemoryDatabaseHelper = new InMemoryDatabaseHelper();
+    InMemoryDatabaseHelper inMemoryDatabaseHelper = InMemoryDatabaseHelper.getInstance();
     private String getJsonPath(String jsonPath){
         String result = "";
         try{
-            result = jsonPath.substring(jsonPath.lastIndexOf(".")+1).trim().toLowerCase();
+            result = jsonPath.substring(jsonPath.lastIndexOf(".")+1).trim();
         }catch (Exception e){
 
         }
@@ -37,13 +37,14 @@ public class GetJsonValuesFromResponse {
     public void extractString(Response response, String jsonPath, LinkedHashMap<String, String> data, String sheetName){
         try {
             String path = getJsonPath(jsonPath);
-            String value = JsonPath.read(response.getBody().asString(), jsonPath);
-            inMemoryDatabaseHelper.createData(data.get(Constants.ExcelColumnNameConstant.TEST_ID.toString()), sheetName, path,
+            String value = response.jsonPath().getString(path);
+            String testId = data.get(Constants.ExcelColumnNameConstant.TEST_ID.toString());
+            inMemoryDatabaseHelper.createData(testId, sheetName, path,
                     value, Constants.InMemoryDatabaseHelperConstant.TABLENAME.toString());
         }catch (PathNotFoundException e){
             e.printStackTrace();
         }catch (Exception e){
-
+            e.printStackTrace();
         }
     }
     public void extractBoolean(Response response, String jsonPath, LinkedHashMap<String, String> data, String sheetName){

@@ -103,7 +103,7 @@ public class FactoryHelper {
     }
     private void createTable(){
         try{
-            InMemoryDatabaseHelper inMemoryDatabaseHelper = new InMemoryDatabaseHelper();
+            InMemoryDatabaseHelper inMemoryDatabaseHelper = InMemoryDatabaseHelper.getInstance();
             inMemoryDatabaseHelper.createTable();
         }catch (Exception e){
             e.printStackTrace();

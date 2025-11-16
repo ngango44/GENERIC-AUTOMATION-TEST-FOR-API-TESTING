@@ -28,8 +28,17 @@ public class ResponseValueExtractor{
     public void extractDynamicResponseValue(Response response, LinkedHashMap<String, String> data){
         String value = ExcelColumnNameConstant.TEST_ASSERT_RESPONSE.toString();
         String dataValue = data.get(value);
-        if (dataValue.contains("$.")){
-            extractValueFromResponse(response,value,data);
+        if(dataValue != null) {
+            ExtractDynamicData extractDynamicData = new ExtractDynamicData();
+            if (dataValue.contains("#")) {
+                extractDynamicData.extractSingleDynamicValue(value, data);
+            }
+            if (dataValue.contains("@")) {
+                extractDynamicData.extractListDynamicValue(value, dataValue, data);
+            }
+            if (dataValue.contains("$.")){
+                extractValueFromResponse(response,value,data);
+            }
         }
     }
     private void extractValueFromResponse(Response response,String value, LinkedHashMap<String, String> data){
@@ -59,7 +68,7 @@ public class ResponseValueExtractor{
         try{
             String columName = ExcelColumnNameConstant.TEST_METHOD_AND_JSON_PATH.toString();
             String methodAndJsonPathString = data.get(columName);
-            String[][] entries = validationHelper.splitMultipleEntriesAndValidate(methodAndJsonPathString,";",":",data);
+            String[][] entries = validationHelper.splitMultipleEntriesAndValidate(methodAndJsonPathString,";",":");
             for (String[] entry: entries){
                 // Skip empty entries
                 if (entry.length >= 2) {
@@ -81,10 +90,11 @@ public class ResponseValueExtractor{
         return methodAnhJsonPathMap;
     }
     public void extractAndStoreResponseValues(Response response,LinkedHashMap<String, String> data, String sheetName){
-        if (response !=null){
+        if (response == null){
             return;
         }
-        if (!TextUtils.isEmpty(data.get(ExcelColumnNameConstant.TEST_METHOD_AND_JSON_PATH.toString()))){
+        String methodAndJsonPath = data.get(ExcelColumnNameConstant.TEST_METHOD_AND_JSON_PATH.toString());
+        if (!TextUtils.isEmpty(methodAndJsonPath)){
             ResponseValueExtractor extractor = new ResponseValueExtractor();
             LinkedHashMap<String, String> methodAndJsonPathMap = separateMethodAndJsonPath(data);
             extractor.invokeReflection(data,methodAndJsonPathMap,response,sheetName);
@@ -100,8 +110,8 @@ public class ResponseValueExtractor{
      */
     private void invokeReflection(LinkedHashMap<String, String> data,LinkedHashMap<String, String> methodAndJsonPathMap,Response response, String sheetName) {
         for (Map.Entry<String, String> entry: methodAndJsonPathMap.entrySet()){
-            String jsonPath = entry.getKey();
-            String method = entry.getValue();
+            String method = entry.getKey();
+            String jsonPath = entry.getValue();
             reflectionHelper(data,method,jsonPath,response,sheetName);
         }
     }

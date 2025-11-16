@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExtractDynamicData {
-    InMemoryDatabaseHelper inMemoryDatabaseHelper = new InMemoryDatabaseHelper();
+    InMemoryDatabaseHelper inMemoryDatabaseHelper = InMemoryDatabaseHelper.getInstance();
     public void extractDynamicRequestValue(LinkedHashMap<String, String> data){
         extractDynamicValues(ExcelColumnNameConstant.TEST_URL.toString(),data);
         extractDynamicValues(ExcelColumnNameConstant.TEST_INPUT_JSON.toString(),data);
@@ -31,7 +31,7 @@ public class ExtractDynamicData {
             }
         }
     }
-    private void extractListDynamicValue(String value, String dataValue, LinkedHashMap<String, String> data){
+    public void extractListDynamicValue(String value, String dataValue, LinkedHashMap<String, String> data){
        try {
            boolean hasIndex = dataValue.contains("[");
            String regex = hasIndex ? "\\@[a-zA-Z0-9\\.\\[\\]\\-\\_\\s]+\\@" : "\\@[a-zA-Z0-9\\.\\-\\s]+\\@";
@@ -64,7 +64,7 @@ public class ExtractDynamicData {
            e.printStackTrace();
        }
     }
-    private void extractSingleDynamicValue(String value, LinkedHashMap<String, String> data){
+    public void extractSingleDynamicValue(String value, LinkedHashMap<String, String> data){
         try{
             String regex = "\\#[a-zA-Z0-9\\.\\-\\_\\s]+\\#";
             Matcher matcher = getMatcherRegex(regex,value,data);
@@ -87,7 +87,7 @@ public class ExtractDynamicData {
         try {
             String sheetName = splitDynamicValue[0].toLowerCase();
             String testcaseId = splitDynamicValue[1];
-            String pathValue = splitDynamicValue[2].toLowerCase();
+            String pathValue = splitDynamicValue[2];
             return inMemoryDatabaseHelper.getDataFromDataBase(sheetName, testcaseId, pathValue);
         }catch (SQLException e){
             e.printStackTrace();

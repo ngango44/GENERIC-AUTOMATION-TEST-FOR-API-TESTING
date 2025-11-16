@@ -1,5 +1,6 @@
 package com.framework.utility;
 
+import com.framework.config.TestContext;
 import com.framework.constants.Constants.DataUtilConstants;
 
 import java.util.LinkedHashMap;
@@ -8,7 +9,7 @@ public class DataUtil {
     /**
      * Instance-level data provider that takes TestContext directly
      */
-    public Object[][] getDataForContext(com.framework.config.TestContext context){
+    public Object[][] getDataForContext(TestContext context){
         Object[][] data = null;
         try {
             if(context == null){
@@ -46,9 +47,6 @@ public class DataUtil {
                     }
                 }
             }
-            if (data == null) {
-                return new Object[0][0];
-            }
 
         }catch (Exception e){
             System.out.println("Exception in DataProvider: "+ e);
@@ -60,13 +58,7 @@ public class DataUtil {
     public LinkedHashMap<String, String> getTestCaseMap(ExcelReader excelReader, String sheetName, int row, int cols, LinkedHashMap<String, String> table){
         try{
             for (int j = 0; j < cols; j++){
-                String headerValue = excelReader.getCellData(sheetName,j,2);
-            }
-            for (int j = 0; j < cols; j++){
-                String headerValue = excelReader.getCellData(sheetName,j,1);
-            }
-            for (int j = 0; j < cols; j++){
-                StringBuffer key = new StringBuffer(excelReader.getCellData(sheetName,j,2).toLowerCase().trim()); // ← SỬA: row 2 thay vì row 1
+                StringBuffer key = new StringBuffer(excelReader.getCellData(sheetName,j,2).toLowerCase().trim());
                 StringBuffer value = new StringBuffer(excelReader.getCellData(sheetName,j,row).trim());
                 table.put(key.toString().trim(), value.toString().trim());
             }
